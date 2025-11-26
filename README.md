@@ -1,22 +1,10 @@
-# 📝 **README Actualizado**
-
-
 # Pipeline de Resumen Extractivo Avanzado
 
-Un sistema de resumen extractivo multilingüe implementado como pipeline modular de scikit-learn que combina algoritmos TF-ICF mejorados con clustering semántico para generar resúmenes de alta calidad.
+Un sistema modular de resumen extractivo multilingüe que implementa algoritmos avanzados de procesamiento de lenguaje natural usando scikit-learn. Diseñado para ser eficiente, extensible y con dependencias mínimas.
 
-## 🚀 Características Mejoradas
+## 🏗️ **Arquitectura del Sistema**
 
-- **🔍 Resumen extractivo semántico** - Combina TF-ICF con análisis de frases clave
-- **🌍 Soporte multilingüe inteligente** - Español e inglés con detección avanzada
-- **🎯 Algoritmo TF-ICF mejorado** - Con suavizado y ponderación de términos
-- **📊 Clustering semántico** - Para diversidad temática en los resúmenes
-- **⚡ Pipeline modular** - Arquitectura separada en componentes reutilizables
-- **📈 Métricas avanzadas** - Evaluación integral con BLEU, ROUGE, coherencia y más
-- **🛡️ Manejo robusto de errores** - Fallbacks inteligentes para todos los casos edge
-- **💾 Mínimas dependencias** - Solo scikit-learn, numpy y nltk básico
-
-## 🏗️ Arquitectura Modular
+### **Módulos Principales y su Funcionamiento**
 
 ```
 summarization_pipeline/
@@ -27,118 +15,153 @@ summarization_pipeline/
 └── 📁 __init__.py            # Configuración del paquete
 ```
 
-## 📋 Requisitos Mejorados
+#### **1. 📁 text_preprocessor.py - Procesamiento Inteligente de Texto**
 
-```bash
-pip install scikit-learn numpy nltk
+**Propósito**: Preparar y limpiar el texto para el análisis semántico.
+
+**Flujo de procesamiento**:
+```
+texto_entrante → detect_language() → split_sentences() → preprocess_text() → datos_estructurados
 ```
 
-## 🧠 Algoritmos Avanzados Implementados
+**Técnicas Implementadas**:
 
-### TF-ICF Mejorado
-- **Suavizado de Laplace** para evitar divisiones por cero
-- **Ponderación de términos** por longitud e informatividad
-- **ICF balanceado** que no castiga demasiado términos comunes
+- **🔤 Detección de Idioma Mejorada**:
+  Combina múltiples heurísticas: caracteres especiales (á, é, í, ó, ú, ñ), palabras comunes por idioma, y longitud promedio de palabras para determinar si el texto es español o inglés.
 
-### Clustering Semántico
-- **K-means adaptativo** basado en longitud del texto
-- **Agrupamiento por similitud** como fallback robusto
-- **Selección por clusters** para diversidad temática
+- **📝 División de Oraciones con NLTK**:
+  Utiliza tokenización inteligente de NLTK para dividir el texto en oraciones, filtrando aquellas muy cortas (<20 caracteres) que suelen contener poca información.
 
-### Scores Multi-dimensionales
-```python
-combined_score = (
-    tf_icf * 0.35 +        # TF-ICF tradicional mejorado
-    key_phrase * 0.25 +     # Frases clave del documento
-    semantic * 0.15 +       # Análisis semántico del preprocesador
-    position * 0.15 +       # Posición en el texto (curva U)
-    length * 0.10           # Longitud óptima de oraciones
-)
-```
+- **🔍 Extracción de Frases Clave**:
+  Identifica n-gramas importantes (1-3 palabras) usando TF-IDF. Ejemplo: `[("aprendizaje automático", 0.85), ("inteligencia artificial", 0.78)]`
 
-## 🛠️ Uso Básico Mejorado
+- **🧹 Preprocesamiento de Texto**:
+  Convierte a minúsculas, elimina puntuación, remueve stopwords y filtra palabras muy cortas para limpiar el texto manteniendo el contexto semántico.
 
-### Ejemplo Simple
+**Salida**: Diccionario estructurado con metadatos del texto procesado, incluyendo oraciones originales, oraciones preprocesadas, frases clave y puntuaciones semánticas.
 
-```python
-from summarization_pipeline import summarization_pipeline
+---
 
-# Texto a resumir
-texto = """
-La inteligencia artificial está transformando radicalmente el panorama tecnológico global. 
-Los avances en machine learning y deep learning han permitido desarrollar sistemas capaces 
-de realizar tareas que antes se consideraban exclusivamente humanas. En el campo de la medicina, 
-los algoritmos de IA pueden analizar imágenes médicas con una precisión que rivaliza con 
-la de radiólogos expertos. Esto ha llevado a diagnósticos más tempranos y precisos de 
-enfermedades como el cáncer, mejorando significativamente las tasas de supervivencia.
-"""
+#### **2. 📁 semantic_summarizer.py - Algoritmo Principal de Resumen**
 
-# Procesar y obtener resumen
-resultados = summarization_pipeline.fit_transform([texto])
-resumen = resultados[0]['summary']
-metricas = resultados[0]['metrics']  # Nuevo: métricas incluidas
+**Propósito**: Seleccionar las oraciones más importantes usando TF-ICF mejorado y clustering semántico.
 
-print("Resumen:", resumen)
-print("Compresión:", f"{resultados[0]['compression_ratio']:.1%}")
-print("Score General:", f"{metricas['overall_score']:.4f}")
-```
+**Técnicas Implementadas**:
 
-### Evaluación Avanzada de Calidad
+- **🎯 TF-ICF Mejorado (Term Frequency - Inverse Class Frequency)**:
+  ```python
+  # Fórmula mejorada:
+  TF(término) = (frecuencia en oración) / (total términos) * peso_longitud
+  ICF(término) = log(total_oraciones / docs_con_término) + ajuste
+  Score = Σ [TF(t) × ICF(t)] para cada término t
+  ```
+  El TF-ICF identifica términos que son importantes dentro de una oración pero poco comunes en otras oraciones del mismo texto.
 
-```python
-from metrics_evaluator import AdvancedSummaryEvaluator
+- **📊 Sistema de Scoring Multi-dimensional**:
+  Combina múltiples factores con pesos optimizados:
+  - 35% TF-ICF (relevancia léxica)
+  - 30% Frases clave del documento
+  - 20% Análisis semántico del preprocesador
+  - 15% Posición estratégica (curva en U)
 
-evaluator = AdvancedSummaryEvaluator()
-evaluacion = evaluator.comprehensive_evaluation(
-    texto_original, 
-    resumen, 
-    "Mi Método",
-    processed_data=resultado,           # Datos para métricas avanzadas
-    selected_indices=resultado['selected_sentences']
-)
+- **🎪 Clustering Semántico Adaptativo**:
+  Agrupa oraciones similares temáticamente usando K-means sobre representaciones TF-IDF, asegurando diversidad en el resumen final.
 
-print("Métricas detalladas:")
-print(f"• ROUGE-like: {evaluacion['metrics']['rouge_like_score']:.4f}")
-print(f"• BLEU: {evaluacion['metrics']['bleu_score']:.4f}")
-print(f"• Coherencia: {evaluacion['metrics']['coherence_score']:.4f}")
-print(f"• Cobertura: {evaluacion['metrics']['coverage_score']:.4f}")
-```
+- **🔄 Estrategia de Selección en 3 Fases**:
+  1. **Mejor por cluster** - Garantiza diversidad temática
+  2. **Segunda mejor de clusters grandes** - Añade profundidad
+  3. **Mejores globales restantes** - Asegura máxima relevancia
 
-## 📊 Métricas de Evaluación Implementadas
+**Salida**: Resumen estructurado con métricas de compresión, oraciones seleccionadas y datos para evaluación.
 
-| Métrica | Descripción | Rango Óptimo |
-|---------|-------------|--------------|
-| **ROUGE-like** | Cobertura de contenido vs original | 0.4-0.7 |
-| **BLEU Score** | Similitud lexical con referencias | 0.3-0.6 |
-| **Coherencia** | Fluidez entre oraciones del resumen | 0.6-1.0 |
-| **Cobertura** | Frases clave del original incluidas | 0.7-1.0 |
-| **Diversidad** | Variedad lexical en el resumen | 0.7-0.9 |
-| **Redundancia** | Nivel de repetición (menos es mejor) | 0.0-0.2 |
+---
 
-## ⚙️ Personalización Avanzada
+#### **3. 📁 metrics_evaluator.py - Evaluación de Calidad**
 
-### Pipeline con Configuración Específica
+**Propósito**: Medir la calidad del resumen usando métricas estandarizadas.
+
+**Métricas Implementadas**:
+
+- **📈 ROUGE-like Score**: Mide cobertura de contenido comparando la superposición de palabras entre el resumen y el original.
+
+- **🔤 BLEU Score Mejorado**: Evalúa similitud n-gram con referencias múltiples usando smoothing para evitar zeros.
+
+- **🔄 Coherencia**: Calcula la fluidez entre oraciones del resumen usando similitud de coseno entre representaciones vectoriales consecutivas.
+
+- **🎯 Cobertura Semántica**: Porcentaje de frases clave del documento original que están incluidas en el resumen.
+
+- **📊 Score General Ponderado**: Combina todas las métricas con pesos optimizados para un evaluación integral.
+
+---
+
+## 🚀 **Uso del Pipeline en tus Programas Python**
+
+### **1. Uso Básico - Resumen Simple**
 
 ```python
 from sklearn.pipeline import Pipeline
 from text_preprocessor import EnhancedTextPreprocessor
 from semantic_summarizer import SemanticTFICFSummarizer
 
-# Pipeline personalizado para documentos largos
-pipeline_largo = Pipeline([
-    ('preprocessor', EnhancedTextPreprocessor(min_word_length=3)),
+# Crear pipeline
+pipeline = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor()),
+    ('summarizer', SemanticTFICFSummarizer(n_sentences=3))
+])
+
+# Texto a resumir
+texto_largo = "Tu texto largo aquí..."
+
+# Generar resumen
+resultados = pipeline.fit_transform([texto_largo])
+resumen = resultados[0]['summary']
+
+print(f"📝 Resumen: {resumen}")
+print(f"📊 Compresión: {resultados[0]['compression_ratio']:.1%}")
+print(f"🔤 Idioma: {resultados[0]['language']}")
+```
+
+### **2. Uso Avanzado - Con Evaluación de Calidad**
+
+```python
+from metrics_evaluator import AdvancedSummaryEvaluator
+
+# Pipeline con configuración avanzada
+pipeline_avanzado = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor(
+        min_word_length=3,
+        use_semantic_analysis=True
+    )),
     ('summarizer', SemanticTFICFSummarizer(
         n_sentences='auto',           # Cálculo automático
         clustering_method='kmeans',   # Clustering semántico
         diversity_weight=0.4          # Énfasis en diversidad
     ))
 ])
+
+# Procesar y evaluar
+resultados = pipeline_avanzado.fit_transform([texto_largo])
+evaluator = AdvancedSummaryEvaluator()
+
+evaluacion = evaluator.comprehensive_evaluation(
+    texto_largo,
+    resultados[0]['summary'],
+    "Mi Resumen",
+    resultados[0],
+    resultados[0]['selected_sentences']
+)
+
+print(f"🎯 Score General: {evaluacion['metrics']['overall_score']:.3f}")
+print(f"📈 ROUGE: {evaluacion['metrics']['rouge_like_score']:.3f}")
+print(f"🔤 BLEU: {evaluacion['metrics']['bleu_score']:.3f}")
 ```
 
-### Dominios Específicos con Bonus Temático
+### **3. Personalización para Dominios Específicos**
 
 ```python
 class MedicalSummarizer(SemanticTFICFSummarizer):
+    """Summarizer especializado en textos médicos"""
+    
     def __init__(self, n_sentences='auto'):
         super().__init__(n_sentences)
         self.medical_terms = {
@@ -153,58 +176,120 @@ class MedicalSummarizer(SemanticTFICFSummarizer):
         for i, (idx, score, length) in enumerate(scores):
             sentence = processed_data['sentences'][idx].lower()
             medical_bonus = sum(1 for term in self.medical_terms if term in sentence)
-            medical_bonus = min(medical_bonus * 0.1, 0.3)  # Máximo 30% bonus
+            medical_bonus = min(medical_bonus * 0.15, 0.3)
             scores[i] = (idx, score * (1 + medical_bonus), length)
         
         return scores
+
+# Pipeline médico especializado
+pipeline_medico = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor()),
+    ('summarizer', MedicalSummarizer(n_sentences=4))
+])
 ```
 
-## 📈 Métodos de Evaluación
+### **4. Procesamiento por Lotes**
 
-### Evaluación Automática
 ```python
-# Evaluación completa con todos los componentes
-results = pipeline.fit_transform([texto_largo])
-evaluation = evaluator.comprehensive_evaluation(
-    texto_largo, 
-    results[0]['summary'], 
-    "Enhanced TF-ICF",
-    results[0],
-    results[0]['selected_sentences']
-)
+import pandas as pd
 
-# Exportar resultados
-evaluator.export_metrics_to_csv("evaluacion_completa.csv")
+# Procesar múltiples documentos
+documentos = [texto1, texto2, texto3, texto4]
+resultados = pipeline.fit_transform(documentos)
+
+# Crear DataFrame con resultados
+df_resultados = pd.DataFrame([{
+    'resumen': r['summary'],
+    'compresion': r['compression_ratio'],
+    'idioma': r['language'],
+    'oraciones_seleccionadas': len(r['selected_sentences'])
+} for r in resultados])
+
+df_resultados.to_csv('resumenes_generados.csv', index=False)
 ```
 
-### Comparación de Métodos
+## 📊 **Métricas de Evaluación**
+
+| Métrica | Descripción | Rango Óptimo | Interpretación |
+|---------|-------------|--------------|----------------|
+| **ROUGE-like** | Cobertura de contenido | 0.4-0.7 | Mide qué tan bien el resumen representa el contenido original |
+| **BLEU Score** | Similitud lexical | 0.3-0.6 | Evalúa la similitud en términos específicos con el original |
+| **Coherencia** | Fluidez del resumen | 0.6-1.0 | Indica qué tan bien fluyen las oraciones entre sí |
+| **Cobertura** | Frases clave incluidas | 0.7-1.0 | Porcentaje de conceptos importantes capturados |
+| **Diversidad** | Variedad lexical | 0.7-0.9 | Mide la riqueza vocabular del resumen |
+| **Redundancia** | Repetición de términos | 0.0-0.2 | Menos es mejor - indica repetición excesiva |
+
+## 🎯 **Técnicas de IA Implementadas**
+
+### **TF-ICF (Term Frequency - Inverse Class Frequency)**
+Variante especializada de TF-IDF para resumen de documentos individuales. Trata cada oración como una "clase" y calcula la importancia de términos basándose en su distribución entre oraciones.
+
+### **Clustering Semántico con K-means**
+Agrupa oraciones similares usando representaciones vectoriales TF-IDF, permitiendo seleccionar oraciones diversas que cubran diferentes temas del documento.
+
+### **Análisis de Frases Clave**
+Identifica n-gramas importantes usando TF-IDF a nivel de documento completo, dando mayor peso a oraciones que contienen estos conceptos centrales.
+
+### **Scoring Multi-dimensional**
+Combina múltiples señales (posición, longitud, relevancia léxica, frases clave) con pesos aprendidos empíricamente para una selección balanceada.
+
+## ⚡ **Rendimiento y Optimización**
+
+- **Procesamiento CPU**: Optimizado para funcionar sin GPUs
+- **Dependencias mínimas**: Solo scikit-learn, numpy y NLTK básico
+- **Escalabilidad**: Maneja documentos de 100 a 10,000 palabras
+- **Tiempos de procesamiento**: ~1-5 segundos para documentos típicos
+
+## 🔧 **Configuraciones Recomendadas**
+
+### **Para Noticias/Artículos**
 ```python
-methods = {
-    "Básico": basic_pipeline,
-    "Con Clustering": clustered_pipeline, 
-    "Avanzado": advanced_pipeline
-}
-
-for name, pipeline in methods.items():
-    results = pipeline.fit_transform([texto])
-    # Evaluar y comparar...
+pipeline_noticias = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor(min_word_length=2)),
+    ('summarizer', SemanticTFICFSummarizer(n_sentences=3))
+])
 ```
 
-## 🚀 Rendimiento y Optimización
+### **Para Documentos Técnicos**
+```python
+pipeline_tecnico = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor(min_word_length=4)),
+    ('summarizer', SemanticTFICFSummarizer(n_sentences=4, diversity_weight=0.5))
+])
+```
 
-- **⚡ Procesamiento eficiente**: Solo CPU, sin modelos grandes
-- **📐 Escalabilidad**: Maneja documentos de 100 a 10,000 palabras
-- **🔄 Cache opcional**: Para procesamiento repetitivo
-- **🎯 Balance calidad/velocidad**: Optimizado para uso práctico
+### **Para Textos Muy Largos**
+```python
+pipeline_largo = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor()),
+    ('summarizer', SemanticTFICFSummarizer(n_sentences='auto'))
+])
+```
 
-## 🔮 Próximas Mejoras
+## 📈 **Resultados Esperados**
 
-- [ ] Soporte para más idiomas (francés, portugués, alemán)
-- [ ] Integración con modelos de embeddings livianos
-- [ ] Interfaz web con Streamlit o FastAPI
-- [ ] Análisis de sentimiento en resúmenes
-- [ ] Optimización para dominios específicos (legal, médico, técnico)
+Con textos bien estructurados, el sistema típicamente produce:
+- **Compresión**: 20-30% del texto original
+- **ROUGE Score**: 0.4-0.6
+- **BLEU Score**: 0.3-0.5
+- **Coherencia**: 0.6-0.8
 
-## 📄 Licencia
+## 🚨 **Limitaciones y Consideraciones**
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo LICENSE para más detalles.
+- Funciona mejor con textos bien estructurados y párrafos coherentes
+- El rendimiento puede variar con textos muy técnicos o especializados
+- La detección de idioma asume textos mayoritariamente en un idioma
+- Optimizado para español e inglés, otros idiomas requieren ajustes
+
+## 🤝 **Contribuciones**
+
+Las contribuciones son bienvenidas en áreas como:
+
+- Soporte para más idiomas
+- Mejoras en la detección de idioma
+- Optimizaciones de rendimiento
+- Nuevas métricas de evaluación
+
+## 📄 **Licencia**
+
+Este proyecto está bajo la Licencia MIT.

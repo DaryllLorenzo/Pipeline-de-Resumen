@@ -30,7 +30,7 @@ def main():
     Los sistemas de aprendizaje adaptativo pueden personalizar el contenido educativo según las necesidades individuales de cada estudiante. 
     Esto está demostrando ser particularmente efectivo para cerrar brechas educativas y mejorar el rendimiento académico en poblaciones diversas. 
     A pesar de estos avances prometedores, existen preocupaciones legítimas sobre el impacto de la IA en el empleo. 
-    Many experts argue that while AI will eliminate some routine jobs, it will also create new employment opportunities in emerging fields. 
+    Muchos expertos argumentan que, aunque la IA eliminará algunos trabajos rutinarios, también creará nuevas oportunidades laborales en campos emergentes.
     La clave para navegar esta transición será la educación continua y el desarrollo de habilidades digitales en la fuerza laboral. 
     Las empresas y gobiernos deben colaborar para asegurar que los beneficios de la inteligencia artificial sean distribuidos equitativamente en la sociedad.
     """
