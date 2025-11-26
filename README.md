@@ -1,46 +1,62 @@
-# Pipeline de Resumen
+# 📝 **README Actualizado**
 
-Un sistema de resumen extractivo multilingüe implementado como pipeline de scikit-learn que utiliza el algoritmo TF-ICF (Term Frequency - Inverse Class Frequency) para identificar las oraciones más importantes de un texto.
 
-## 🚀 Características
+# Pipeline de Resumen Extractivo Avanzado
 
-- **Resumen extractivo** basado en importancia semántica
-- **Soporte multilingüe** (español e inglés) con detección automática
-- **Algoritmo TF-ICF** adaptado para resumen de documentos individuales
-- **Pipeline modular** de scikit-learn fácil de extender
-- **Preprocesamiento inteligente** con limpieza de texto y stopwords
-- **Mínimas dependencias** - solo scikit-learn y numpy
+Un sistema de resumen extractivo multilingüe implementado como pipeline modular de scikit-learn que combina algoritmos TF-ICF mejorados con clustering semántico para generar resúmenes de alta calidad.
 
-## 📋 Requisitos
+## 🚀 Características Mejoradas
+
+- **🔍 Resumen extractivo semántico** - Combina TF-ICF con análisis de frases clave
+- **🌍 Soporte multilingüe inteligente** - Español e inglés con detección avanzada
+- **🎯 Algoritmo TF-ICF mejorado** - Con suavizado y ponderación de términos
+- **📊 Clustering semántico** - Para diversidad temática en los resúmenes
+- **⚡ Pipeline modular** - Arquitectura separada en componentes reutilizables
+- **📈 Métricas avanzadas** - Evaluación integral con BLEU, ROUGE, coherencia y más
+- **🛡️ Manejo robusto de errores** - Fallbacks inteligentes para todos los casos edge
+- **💾 Mínimas dependencias** - Solo scikit-learn, numpy y nltk básico
+
+## 🏗️ Arquitectura Modular
+
+```
+summarization_pipeline/
+├── 📁 text_preprocessor.py    # Procesamiento y limpieza de texto
+├── 📁 semantic_summarizer.py  # Algoritmo principal de resumen
+├── 📁 metrics_evaluator.py    # Evaluación y métricas de calidad
+├── 📁 main.py                 # Ejemplos y uso principal
+└── 📁 __init__.py            # Configuración del paquete
+```
+
+## 📋 Requisitos Mejorados
 
 ```bash
-pip install scikit-learn numpy
+pip install scikit-learn numpy nltk
 ```
 
-## 🧠 Algoritmo TF-ICF
+## 🧠 Algoritmos Avanzados Implementados
 
-### Fundamentos Teóricos
+### TF-ICF Mejorado
+- **Suavizado de Laplace** para evitar divisiones por cero
+- **Ponderación de términos** por longitud e informatividad
+- **ICF balanceado** que no castiga demasiado términos comunes
 
-El TF-ICF (Term Frequency - Inverse Class Frequency) es una variante del TF-IDF adaptada para tareas de clasificación y resumen:
+### Clustering Semántico
+- **K-means adaptativo** basado en longitud del texto
+- **Agrupamiento por similitud** como fallback robusto
+- **Selección por clusters** para diversidad temática
 
-- **TF (Term Frequency)**: Frecuencia normalizada de términos dentro de una oración
-- **ICF (Inverse Class Frequency)**: Medida de qué tan único es un término entre las "clases" (en este caso, oraciones)
-
-### Fórmula Matemática
-
+### Scores Multi-dimensionales
+```python
+combined_score = (
+    tf_icf * 0.35 +        # TF-ICF tradicional mejorado
+    key_phrase * 0.25 +     # Frases clave del documento
+    semantic * 0.15 +       # Análisis semántico del preprocesador
+    position * 0.15 +       # Posición en el texto (curva U)
+    length * 0.10           # Longitud óptima de oraciones
+)
 ```
-TF(t, s) = (Número de veces que t aparece en s) / (Número total de términos en s)
-ICF(t) = log(Total de oraciones / Número de oraciones que contienen t)
-Puntaje(s) = Σ [TF(t, s) × ICF(t)] para cada término t en s
-```
 
-### Ventajas sobre TF-IDF
-
-- **Mejor para documentos individuales**: TF-ICF trata cada oración como una "clase"
-- **Identifica términos discriminativos**: Prioriza palabras que distinguen entre oraciones
-- **Óptimo para resumen**: Selecciona oraciones con información única y relevante
-
-## 🛠️ Uso Básico
+## 🛠️ Uso Básico Mejorado
 
 ### Ejemplo Simple
 
@@ -49,249 +65,146 @@ from summarization_pipeline import summarization_pipeline
 
 # Texto a resumir
 texto = """
-El aprendizaje automático es una rama de la inteligencia artificial. 
-Los algoritmos de machine learning permiten a las computadoras aprender patrones en los datos. 
-En la actualidad, el deep learning ha revolucionado muchas áreas. 
-España es un país con gran desarrollo en tecnología. 
-Los investigadores españoles contribuyen significativamente al campo.
+La inteligencia artificial está transformando radicalmente el panorama tecnológico global. 
+Los avances en machine learning y deep learning han permitido desarrollar sistemas capaces 
+de realizar tareas que antes se consideraban exclusivamente humanas. En el campo de la medicina, 
+los algoritmos de IA pueden analizar imágenes médicas con una precisión que rivaliza con 
+la de radiólogos expertos. Esto ha llevado a diagnósticos más tempranos y precisos de 
+enfermedades como el cáncer, mejorando significativamente las tasas de supervivencia.
 """
 
 # Procesar y obtener resumen
 resultados = summarization_pipeline.fit_transform([texto])
 resumen = resultados[0]['summary']
+metricas = resultados[0]['metrics']  # Nuevo: métricas incluidas
 
 print("Resumen:", resumen)
+print("Compresión:", f"{resultados[0]['compression_ratio']:.1%}")
+print("Score General:", f"{metricas['overall_score']:.4f}")
 ```
 
-### Uso con Múltiples Textos
+### Evaluación Avanzada de Calidad
 
 ```python
-textos = [
-    "Texto en español sobre machine learning...",
-    "English text about artificial intelligence...",
-    "Otro texto en español sobre deep learning..."
-]
+from metrics_evaluator import AdvancedSummaryEvaluator
 
-resultados = summarization_pipeline.fit_transform(textos)
+evaluator = AdvancedSummaryEvaluator()
+evaluacion = evaluator.comprehensive_evaluation(
+    texto_original, 
+    resumen, 
+    "Mi Método",
+    processed_data=resultado,           # Datos para métricas avanzadas
+    selected_indices=resultado['selected_sentences']
+)
 
-for i, resultado in enumerate(resultados):
-    print(f"Texto {i+1} ({resultado['language']}):")
-    print(f"Resumen: {resultado['summary']}")
-    print(f"Oraciones seleccionadas: {resultado['selected_sentences']}\n")
+print("Métricas detalladas:")
+print(f"• ROUGE-like: {evaluacion['metrics']['rouge_like_score']:.4f}")
+print(f"• BLEU: {evaluacion['metrics']['bleu_score']:.4f}")
+print(f"• Coherencia: {evaluacion['metrics']['coherence_score']:.4f}")
+print(f"• Cobertura: {evaluacion['metrics']['coverage_score']:.4f}")
 ```
 
-## 📁 Estructura del Pipeline
+## 📊 Métricas de Evaluación Implementadas
 
-### TextPreprocessor
+| Métrica | Descripción | Rango Óptimo |
+|---------|-------------|--------------|
+| **ROUGE-like** | Cobertura de contenido vs original | 0.4-0.7 |
+| **BLEU Score** | Similitud lexical con referencias | 0.3-0.6 |
+| **Coherencia** | Fluidez entre oraciones del resumen | 0.6-1.0 |
+| **Cobertura** | Frases clave del original incluidas | 0.7-1.0 |
+| **Diversidad** | Variedad lexical en el resumen | 0.7-0.9 |
+| **Redundancia** | Nivel de repetición (menos es mejor) | 0.0-0.2 |
 
-**Responsabilidades:**
-- Detección automática de idioma
-- División en oraciones
-- Limpieza y normalización de texto
-- Eliminación de stopwords
+## ⚙️ Personalización Avanzada
 
-**Flujo de procesamiento:**
-1. `detect_language()`: Identifica español/inglés por caracteres especiales
-2. `split_sentences()`: Divide en oraciones usando regex
-3. `preprocess_text()`: Limpia, tokeniza y filtra stopwords
-
-### TFICFSummarizer
-
-**Responsabilidades:**
-- Cálculo de scores TF-ICF
-- Selección de oraciones relevantes
-- Generación del resumen final
-
-**Flujo de cálculo:**
-1. `calculate_tf()`: Frecuencia de términos normalizada por oración
-2. `calculate_icf()`: Frecuencia inversa entre oraciones
-3. `calculate_sentence_scores()`: Combina TF e ICF para puntuar oraciones
-4. Selecciona top-N oraciones manteniendo orden original
-
-## ⚙️ Personalización
-
-### Modificar Número de Oraciones
+### Pipeline con Configuración Específica
 
 ```python
-pipeline_personalizado = Pipeline([
-    ('preprocessor', TextPreprocessor()),
-    ('summarizer', TFICFSummarizer(n_sentences=3))  # 3 oraciones en el resumen
+from sklearn.pipeline import Pipeline
+from text_preprocessor import EnhancedTextPreprocessor
+from semantic_summarizer import SemanticTFICFSummarizer
+
+# Pipeline personalizado para documentos largos
+pipeline_largo = Pipeline([
+    ('preprocessor', EnhancedTextPreprocessor(min_word_length=3)),
+    ('summarizer', SemanticTFICFSummarizer(
+        n_sentences='auto',           # Cálculo automático
+        clustering_method='kmeans',   # Clustering semántico
+        diversity_weight=0.4          # Énfasis en diversidad
+    ))
 ])
 ```
 
-### Agregar Stopwords Personalizadas
+### Dominios Específicos con Bonus Temático
 
 ```python
-class TextPreprocessorPersonalizado(TextPreprocessor):
-    def __init__(self):
-        super().__init__()
-        # Agregar stopwords personalizadas
-        self.stopwords_es.update({'python', 'código', 'programación'})
-        self.stopwords_en.update({'python', 'code', 'programming'})
-```
-
-### Pipeline para Dominio Específico
-
-```python
-class DomainSpecificSummarizer(TFICFSummarizer):
-    def __init__(self, n_sentences=2, domain_terms=None):
+class MedicalSummarizer(SemanticTFICFSummarizer):
+    def __init__(self, n_sentences='auto'):
         super().__init__(n_sentences)
-        self.domain_terms = domain_terms or {}
+        self.medical_terms = {
+            'diagnóstico', 'tratamiento', 'síntomas', 'paciente', 
+            'enfermedad', 'medicamento', 'hospital', 'cáncer'
+        }
     
-    def calculate_sentence_scores(self, processed_data):
-        scores = super().calculate_sentence_scores(processed_data)
-        # Bonus para términos del dominio
+    def calculate_semantic_scores(self, processed_data):
+        scores = super().calculate_semantic_scores(processed_data)
+        
+        # Bonus para términos médicos
         for i, (idx, score, length) in enumerate(scores):
-            domain_bonus = self._calculate_domain_bonus(processed_data['processed_sentences'][idx])
-            scores[i] = (idx, score * (1 + domain_bonus), length)
+            sentence = processed_data['sentences'][idx].lower()
+            medical_bonus = sum(1 for term in self.medical_terms if term in sentence)
+            medical_bonus = min(medical_bonus * 0.1, 0.3)  # Máximo 30% bonus
+            scores[i] = (idx, score * (1 + medical_bonus), length)
+        
         return scores
-    
-    def _calculate_domain_bonus(self, sentence):
-        # Implementar lógica de bonus para términos del dominio
-        pass
 ```
 
-## 📊 Ejemplos Completos
+## 📈 Métodos de Evaluación
 
-### Ejemplo 1: Texto Científico
-
+### Evaluación Automática
 ```python
-texto_cientifico = """
-La inteligencia artificial está transformando la investigación científica. 
-Los modelos de deep learning pueden predecir estructuras proteicas con alta precisión. 
-Estos avances aceleran el desarrollo de nuevos medicamentos. 
-Sin embargo, existen desafíos éticos en el uso de IA en medicina. 
-La interpretabilidad de los modelos sigue siendo un problema importante.
-"""
+# Evaluación completa con todos los componentes
+results = pipeline.fit_transform([texto_largo])
+evaluation = evaluator.comprehensive_evaluation(
+    texto_largo, 
+    results[0]['summary'], 
+    "Enhanced TF-ICF",
+    results[0],
+    results[0]['selected_sentences']
+)
 
-resultado = summarization_pipeline.fit_transform([texto_cientifico])[0]
-print(f"Idioma: {resultado['language']}")
-print(f"Resumen: {resultado['summary']}")
-print(f"Oraciones seleccionadas: {resultado['selected_sentences']}")
+# Exportar resultados
+evaluator.export_metrics_to_csv("evaluacion_completa.csv")
 ```
 
-### Ejemplo 2: Texto Periodístico
-
+### Comparación de Métodos
 ```python
-texto_noticia = """
-El cambio climático afecta gravemente a los ecosistemas marinos. 
-Las temperaturas oceánicas han aumentado significativamente en la última década. 
-Esto provoca la decoloración de los arrecifes de coral en todo el mundo. 
-Los científicos advierten sobre consecuencias irreversibles si no se toman medidas. 
-Varios países han firmado acuerdos para reducir las emisiones de carbono.
-"""
+methods = {
+    "Básico": basic_pipeline,
+    "Con Clustering": clustered_pipeline, 
+    "Avanzado": advanced_pipeline
+}
 
-resultado = summarization_pipeline.fit_transform([texto_noticia])[0]
+for name, pipeline in methods.items():
+    results = pipeline.fit_transform([texto])
+    # Evaluar y comparar...
 ```
 
-## 🧪 Testing y Validación
+## 🚀 Rendimiento y Optimización
 
-### Ejecutar Ejemplos de Prueba
+- **⚡ Procesamiento eficiente**: Solo CPU, sin modelos grandes
+- **📐 Escalabilidad**: Maneja documentos de 100 a 10,000 palabras
+- **🔄 Cache opcional**: Para procesamiento repetitivo
+- **🎯 Balance calidad/velocidad**: Optimizado para uso práctico
 
-```bash
-python summarization_pipeline.py
-```
+## 🔮 Próximas Mejoras
 
-### Output Esperado
-
-```
---- Texto 1 (ES) ---
-Original:
-    El aprendizaje automático es una rama de la inteligencia artificial. 
-    Los algoritmos de machine...
-
-Resumen:
-Los algoritmos de machine learning permiten a las computadoras aprender patrones en los datos. En la actualidad, el deep learning ha revolucionado muchas áreas.
-Oraciones seleccionadas: [1, 2]
---------------------------------------------------
-```
-
-## 🔧 Extensión del Sistema
-
-### Agregar Nuevos Idiomas
-
-```python
-class MultilingualTextPreprocessor(TextPreprocessor):
-    def __init__(self):
-        super().__init__()
-        self.stopwords_fr = {'le', 'la', 'de', 'et', 'à'}  # Francés
-        self.stopwords_pt = {'o', 'a', 'de', 'e', 'em'}   # Portugués
-    
-    def detect_language(self, text):
-        # Implementar detección más sofisticada
-        if re.search(r'[áéíóúñ]', text):
-            return 'es'
-        elif re.search(r'[àâêîôû]', text):
-            return 'fr'
-        else:
-            return 'en'
-```
-
-### Integración con APIs Externas
-
-```python
-class APISummarizer(TFICFSummarizer):
-    def __init__(self, n_sentences=2, api_key=None):
-        super().__init__(n_sentences)
-        self.api_key = api_key
-    
-    def transform(self, X):
-        resultados = super().transform(X)
-        # Enriquecer resultados con API externa
-        for resultado in resultados:
-            resultado['entities'] = self._extract_entities(resultado['summary'])
-        return resultados
-```
-
-## 📈 Métricas y Evaluación
-
-### Evaluación de Calidad
-
-```python
-def evaluate_summary_quality(original, summary, reference_summary=None):
-    """Evalúa la calidad del resumen usando métricas simples"""
-    
-    # Métricas básicas
-    compression_ratio = len(summary) / len(original)
-    sentence_reduction = 1 - (summary.count('.') / original.count('.'))
-    
-    metrics = {
-        'compression_ratio': compression_ratio,
-        'sentence_reduction': sentence_reduction,
-        'summary_length': len(summary),
-        'original_length': len(original)
-    }
-    
-    return metrics
-```
-
-## 🐛 Solución de Problemas
-
-### Problemas Comunes
-
-1. **Oraciones vacías en el resumen**
-   - Causa: Preprocesamiento muy agresivo
-   - Solución: Ajustar umbral de stopwords o longitud mínima
-
-2. **Detección incorrecta de idioma**
-   - Causa: Textos mixtos o sin caracteres especiales
-   - Solución: Implementar detección más robusta
-
-3. **Resumen muy corto/largo**
-   - Causa: Parámetro n_sentences inadecuado
-   - Solución: Ajustar dinámicamente según longitud del texto
-
-## 🤝 Contribuciones
-
-Las contribuciones son bienvenidas. Áreas de mejora:
-
-- [ ] Soporte para más idiomas
-- [ ] Detección de idioma más robusta
-- [ ] Integración con modelos transformer
-- [ ] Evaluación automática de calidad
-- [ ] Interfaz web o API REST
+- [ ] Soporte para más idiomas (francés, portugués, alemán)
+- [ ] Integración con modelos de embeddings livianos
+- [ ] Interfaz web con Streamlit o FastAPI
+- [ ] Análisis de sentimiento en resúmenes
+- [ ] Optimización para dominios específicos (legal, médico, técnico)
 
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo LICENSE para más detalles.
-
