@@ -6,7 +6,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 # Configuración de NLTK
 try:
-    nltk.data.find('tokenizers/punkt_tab')
+    nltk.data.find('tokenizers/punkt') #nltk.data.find('tokenizers/punkt_tab') # 
 except LookupError:
     nltk.download('punkt_tab')
 

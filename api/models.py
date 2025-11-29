@@ -97,11 +97,14 @@ class BatchSummaryResponse(BaseModel):
     total_processing_time: float = Field(..., description="Tiempo total de procesamiento")
 
 class HealthResponse(BaseModel):
-    """Modelo para estado del servicio"""
     status: str = Field(..., description="Estado del servicio")
     version: str = Field(..., description="Versión de la API")
     model_ready: bool = Field(..., description="Si el modelo está cargado y listo")
     timestamp: str = Field(..., description="Timestamp de la respuesta")
+
+    model_config = {
+        "protected_namespaces": ()
+    }
 
 class ErrorResponse(BaseModel):
     """Modelo para respuestas de error"""
